@@ -18,6 +18,15 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.unit.dp
+import androidx.compose.runtime.*
+import kotlinx.coroutines.*
+import android.util.Log
+import androidx.compose.ui.platform.LocalContext
+import com.divyanshu.doctorapp.network.LoginRequest
+import com.divyanshu.doctorapp.network.RetrofitInstance
+import android.widget.Toast
+import android.content.Context.MODE_PRIVATE
+import kotlinx.coroutines.withContext
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -38,7 +47,27 @@ class MainActivity : ComponentActivity() {
     }
 }
 @Composable
+fun Greeting(name: String, modifier: Modifier = Modifier) {
+    Text(
+        text = "Hello $name!",
+        modifier = modifier
+    )
+}
+@Preview(showBackground = true)
+@Composable
+fun GreetingPreview() {
+    DoctorAppointmentAppTheme {
+        Greeting("Android")
+    }
+}
+
+@Composable
 fun LoginScreen(modifier: Modifier = Modifier) {
+
+    var email by remember { mutableStateOf("") }
+    var password by remember { mutableStateOf("") }
+
+    val context = LocalContext.current
 
     Column(
         modifier = modifier
@@ -48,47 +77,63 @@ fun LoginScreen(modifier: Modifier = Modifier) {
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
 
-        Text(
-            text = "hello Doctor",
-            style = MaterialTheme.typography.headlineMedium
-        )
+        Text("hello Doctor")
 
         Spacer(modifier = Modifier.height(40.dp))
 
         OutlinedTextField(
-            value = "",
-            onValueChange = {},
+            value = email,
+            onValueChange = { email = it },
             label = { Text("Email") }
         )
 
         Spacer(modifier = Modifier.height(16.dp))
 
         OutlinedTextField(
-            value = "",
-            onValueChange = {},
+            value = password,
+            onValueChange = { password = it },
             label = { Text("Password") }
         )
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        Button(onClick = { }) {
+        Button(onClick = {
+
+            // API Call
+            CoroutineScope(Dispatchers.IO).launch {
+                try {
+                    val response = RetrofitInstance.api.login(
+                        LoginRequest(email, password)
+                    )
+
+                    if (response.isSuccessful) {
+
+                        val token = response.body()?.access_token
+
+                        // Save token
+                        val sharedPref = context.getSharedPreferences("app_prefs", MODE_PRIVATE)
+                        sharedPref.edit().putString("token", token).apply()
+
+                        // Show success message on UI thread
+                        withContext(Dispatchers.Main) {
+                            Toast.makeText(
+                                context,
+                                "Login Successful",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+
+                    } else {
+                        Log.d("API", "Error: ${response.errorBody()?.string()}")
+                    }
+
+                } catch (e: Exception) {
+                    Log.d("API", "Exception: ${e.message}")
+                }
+            }
+
+        }) {
             Text("Login")
         }
-
-    }
-}
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    DoctorAppointmentAppTheme {
-        Greeting("Android")
     }
 }
