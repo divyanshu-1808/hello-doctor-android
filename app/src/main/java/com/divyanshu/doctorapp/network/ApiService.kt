@@ -1,18 +1,12 @@
 package com.divyanshu.doctorapp.network
 
+import com.divyanshu.doctorapp.network.auth.LoginRequest
+import com.divyanshu.doctorapp.network.auth.LoginResponse
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.POST
-
-data class LoginRequest(
-    val email: String,
-    val password: String
-)
-
-data class LoginResponse(
-    val access_token: String,
-    val token_type: String
-)
+import retrofit2.http.GET
+import com.divyanshu.doctorapp.network.Doctor
 
 interface ApiService {
 
@@ -20,5 +14,8 @@ interface ApiService {
     suspend fun login(
         @Body request: LoginRequest
     ): Response<LoginResponse>
+
+    @GET("doctors")
+    suspend fun getDoctors(): Response<List<Doctor>>
 
 }
