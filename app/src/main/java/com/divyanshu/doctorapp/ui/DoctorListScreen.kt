@@ -12,6 +12,7 @@ import com.divyanshu.doctorapp.network.repository.DoctorRepository
 import com.divyanshu.doctorapp.network.Doctor
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.clickable
 
 @Composable
 fun DoctorListScreen(navController: NavController) {
@@ -50,6 +51,9 @@ fun DoctorListScreen(navController: NavController) {
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(vertical = 8.dp)
+                        .clickable {
+                            navController.navigate("availability/${doctor.id}")
+                        }
                 ) {
                     Column(modifier = Modifier.padding(16.dp)) {
 

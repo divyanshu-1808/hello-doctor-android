@@ -33,6 +33,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.divyanshu.doctorapp.ui.DoctorListScreen
 import com.divyanshu.doctorapp.ui.LoginScreen
+import com.divyanshu.doctorapp.ui.AvailabilityScreen
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -56,6 +57,12 @@ class MainActivity : ComponentActivity() {
 
                         composable("doctor_list") {
                             DoctorListScreen(navController)
+                        }
+                        composable("availability/{doctor_id}") { backStackEntry ->
+
+                            val doctorId = backStackEntry.arguments?.getString("doctor_id")
+
+                            AvailabilityScreen(navController, doctorId)
                         }
 
                     }
